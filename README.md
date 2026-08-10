@@ -21,15 +21,15 @@ I help shape the open standards behind user-owned identity as a working-group me
 
 <br/>
 
-<p align="center">
-  <img alt="chart" src="https://shieldcn.dev/chart/github/commits/prdlk.svg?align=true&amp;bg=transparent&amp;logo=false&amp;title=Commit+History+%28prdlk%29" />
-</p>
-
-<br/>
-
 <div align="center">
   <img src="./assets/generated/stats-card.svg" width="850" alt="Mission Telemetry"/>
 </div>
+
+<br/>
+
+<p align="center">
+  <img alt="chart" src="https://shieldcn.dev/chart/github/commits/prdlk.svg?align=true&amp;bg=transparent&amp;logo=false&amp;title=Commit+History+%28prdlk%29" />
+</p>
 
 <br/>
 

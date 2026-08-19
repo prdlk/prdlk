@@ -8,12 +8,11 @@ Personal CV / portfolio site for Prad Nukala (https://prad.nu). A static [Astro]
 ## Key Files
 | File | Description |
 |------|-------------|
-| `package.json` | Dependencies and scripts (pnpm). |
+| `package.json` | Dependencies and scripts (bun). |
 | `astro.config.ts` | Astro integrations (MDX, sitemap, icon, robots, webmanifest, expressive-code), markdown remark/rehype pipeline, Satori OG fonts. |
 | `tailwind.config.ts` | Tailwind v4 config (most styling is in `src/styles/global.css`). |
 | `tsconfig.json` | TypeScript config; defines the `@/*` → `src/*` path alias. |
-| `biome.json` | Biome linter/formatter config (`pnpm check` / `pnpm lint`). |
-| `mise.toml` / `pnpm-workspace.yaml` | Toolchain + workspace config. |
+| `biome.json` | Biome linter/formatter config (`bun run check` / `bun run lint`). |
 | `README.md` | Project purpose, content model, frontmatter reference. |
 
 ## Subdirectories
@@ -25,13 +24,13 @@ Personal CV / portfolio site for Prad Nukala (https://prad.nu). A static [Astro]
 ## For AI Agents
 
 ### Working In This Directory
-- Package manager is **pnpm**. Output is **static** (`output: 'static'`, `./dist`) — no SSR adapter.
+- Package manager is **bun**. Output is **static** (`output: 'static'`, `./dist`) — no SSR adapter.
 - Import from source via the `@/` alias (e.g. `@/site.config`), not long relative paths.
 - Most site-wide config (title, url, `socialLinks`, `streamOrigin`, `menuLinks`) lives in `src/site.config.ts`.
 
 ### Testing Requirements
-- `pnpm build` is the primary correctness gate — it runs `astro check`-level content validation and fails on bad frontmatter, broken collection refs, or type errors.
-- `pnpm check` runs `astro check` + Biome. `pnpm dev` serves locally for visual checks.
+- `bun run build` is the primary correctness gate — it runs `astro check`-level content validation and fails on bad frontmatter, broken collection refs, or type errors.
+- `bun run check` runs `astro check` + Biome. `bun run dev` serves locally for visual checks.
 
 ### Common Patterns
 - Content lives in Content Collections; schema is defined once in `src/content.config.ts`.

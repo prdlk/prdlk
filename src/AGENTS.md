@@ -31,7 +31,7 @@ All application source: configuration, content collections, pages/routes, layout
 
 ### Working In This Directory
 - Collection **keys match their content dir and route**: `writing`→`/writing`, `projects`→`/projects`, `experience`→`/experience`, `speaking`→`/speaking`.
-- When changing a collection schema in `content.config.ts`, run `pnpm build` to regenerate `astro:content` types and catch frontmatter mismatches.
+- When changing a collection schema in `content.config.ts`, run `bun run build` to regenerate `astro:content` types and catch frontmatter mismatches.
 
 ### Routing & OG images (`src/pages`)
 - Any `.md`/`.mdx`/`.astro` under `src/pages` becomes a route — do **not** put `AGENTS.md` or other docs there (they'd ship as public pages). Document `pages/` here instead.

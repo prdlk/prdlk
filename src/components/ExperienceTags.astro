@@ -1,0 +1,25 @@
+---
+import { getEntries } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+	experiences: CollectionEntry<"projects" | "writing" | "speaking">["data"]["experiences"];
+}
+
+const { experiences } = Astro.props;
+const entries = experiences.length ? await getEntries(experiences) : [];
+---
+
+{
+	entries.length > 0 && (
+		<ul class="flex flex-wrap gap-2">
+			{entries.map((exp) => (
+				<li>
+					<a class="cactus-link inline-block" href={`/experience/${exp.id}/`}>
+						{exp.data.title}
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}

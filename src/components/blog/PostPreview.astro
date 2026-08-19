@@ -1,0 +1,35 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { HTMLTag, Polymorphic } from "astro/types";
+import FormattedDate from "@/components/FormattedDate.astro";
+
+type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & {
+	post: CollectionEntry<"writing">;
+	withDesc?: boolean;
+};
+
+const { as: Tag = "div", post, withDesc = false } = Astro.props;
+const { externalUrl, publisher } = post.data;
+const href = externalUrl ?? `/writing/${post.id}/`;
+---
+
+<FormattedDate class="text-muted min-w-30 font-semibold" date={post.data.publishDate} />
+<Tag>
+	{post.data.draft && <span class="text-red-500">(Draft) </span>}
+	<a
+		class="cactus-link"
+		href={href}
+		{...externalUrl ? { rel: "noopener noreferrer", target: "_blank" } : {}}
+	>
+		{post.data.title}
+	</a>
+	{
+		externalUrl && (
+			<span class="text-muted text-xs whitespace-nowrap">
+				{" ↗ "}
+				{publisher ?? "External"}
+			</span>
+		)
+	}
+</Tag>
+{withDesc && <q class="line-clamp-3 italic">{post.data.description}</q>}

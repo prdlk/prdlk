@@ -1,0 +1,67 @@
+---
+import { type CollectionEntry, getEntries, render } from "astro:content";
+import type { HTMLTag, Polymorphic } from "astro/types";
+import TagList from "@/components/TagList.astro";
+
+type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & {
+	project: CollectionEntry<"projects">;
+	isPreview?: boolean | undefined;
+};
+
+const { as: Tag = "div", project, isPreview = false } = Astro.props;
+const { Content } = await render(project);
+const { title, startDate, endDate, link, repo, tags, experiences } = project.data;
+const range = `${startDate.getFullYear()} – ${endDate ? endDate.getFullYear() : "Present"}`;
+const expEntries = experiences.length ? await getEntries(experiences) : [];
+---
+
+<article
+	class:list={[isPreview && "bg-global-text/5 inline-grid rounded-md px-4 py-3"]}
+	data-pagefind-body={isPreview ? false : true}
+>
+	<Tag class="title" class:list={{ "text-base": isPreview }}>
+		{
+			isPreview ? (
+				<a class="cactus-link" href={`/projects/${project.id}/`}>
+					{title}
+				</a>
+			) : (
+				<>{title}</>
+			)
+		}
+	</Tag>
+	<p class="text-muted text-sm">
+		<span>{range}</span>{expEntries.length > 0 && (
+			<span> ({expEntries.map((exp, i) => (
+				<Fragment>{i > 0 && ", "}<a class="cactus-link" href={`/experience/${exp.id}/`}>{exp.data.title}</a></Fragment>
+			))})</span>
+		)}
+	</p>
+	{
+		!isPreview && (link || repo) && (
+			<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+				{link && (
+					<a class="cactus-link" href={link} rel="noopener noreferrer" target="_blank">
+						Visit →
+					</a>
+				)}
+				{repo && (
+					<a class="cactus-link" href={repo} rel="noopener noreferrer" target="_blank">
+						Source →
+					</a>
+				)}
+			</div>
+		)
+	}
+	<div
+		class="prose prose-sm prose-cactus mt-4 max-w-none [&>p:last-of-type]:mb-0"
+		class:list={{ "line-clamp-6": isPreview }}
+	>
+		<Content />
+	</div>
+	{
+		!isPreview && tags.length > 0 && (
+			<TagList tags={tags} class="border-global-text/10 mt-6 border-t pt-6" />
+		)
+	}
+</article>

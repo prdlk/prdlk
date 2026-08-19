@@ -1,0 +1,45 @@
+---
+import { Icon } from "astro-icon/components";
+import { menuLinks, siteConfig, socialLinks } from "@/site.config";
+
+const year = new Date().getFullYear();
+---
+
+<footer
+	class="text-muted border-global-text/15 mt-auto flex w-full flex-col items-center gap-y-6 border-t pt-8 pb-6 text-center text-sm font-semibold"
+>
+	{/* Row 1: site nav */}
+	<nav aria-labelledby="footer_links" class="flex flex-wrap justify-center gap-x-1 gap-y-1">
+		<p id="footer_links" class="sr-only">More on this site</p>
+		<a class="hover:text-global-text px-3 py-1 hover:underline" href="/skills/">Skills</a>
+		{
+			menuLinks.map((link) => (
+				<a class="hover:text-global-text px-3 py-1 hover:underline" href={link.path}>
+					{link.title}
+				</a>
+			))
+		}
+	</nav>
+
+	{/* Row 2: social icons */}
+	<ul class="flex flex-wrap items-center justify-center gap-1">
+		{
+			socialLinks.map(({ friendlyName, isWebmention, link, name }) => (
+				<li class="flex">
+					<a
+						class="hover:text-link inline-flex rounded-md p-2 transition-colors"
+						href={link}
+						rel={`me noreferrer ${isWebmention ? "authn" : ""}`}
+						target={link.startsWith("mailto:") ? undefined : "_blank"}
+					>
+						<Icon aria-hidden="true" class="h-6 w-6" focusable="false" name={name} />
+						<span class="sr-only">{friendlyName}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+
+	{/* Row 3: copyright */}
+	<p class="text-xs font-normal">&copy; {year} {siteConfig.author}</p>
+</footer>

@@ -6,8 +6,6 @@
 			"!**/build",
 			"!**/dist",
 			"!**/node_modules",
-			"!**/.vercel",
-			"!**/.netlify",
 			"!**/.vscode",
 			"!**/.astro"
 		]

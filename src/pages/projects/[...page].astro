@@ -1,0 +1,75 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import type { GetStaticPaths, Page } from "astro";
+import { Icon } from "astro-icon/components";
+import Pagination from "@/components/Paginator.astro";
+import Project from "@/components/project/Project.astro";
+import PageLayout from "@/layouts/Base.astro";
+import { projectDateSort } from "@/utils/date";
+import { breadcrumbList, collectionPageSchema } from "@/utils/seo";
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const MAX_PROJECTS_PER_PAGE = 10;
+	const allProjects = await getCollection("projects");
+	return paginate(allProjects.sort(projectDateSort), { pageSize: MAX_PROJECTS_PER_PAGE });
+}) satisfies GetStaticPaths;
+
+interface Props {
+	page: Page<CollectionEntry<"projects">>;
+}
+
+const { page } = Astro.props;
+
+const meta = {
+	description: "Things I've built",
+	schema: [
+		breadcrumbList([
+			{ name: "Home", path: "/" },
+			{ name: "Projects", path: "/projects/" },
+		]),
+		collectionPageSchema({
+			name: "Projects",
+			description: "Things I've built",
+			path: page.url.current,
+			items: page.data.map((p) => ({ name: p.data.title, path: `/projects/${p.id}/` })),
+		}),
+	],
+	title: "Projects",
+};
+
+const paginationProps = {
+	...(page.url.prev && {
+		prevUrl: {
+			text: "← Previous Page",
+			url: page.url.prev,
+		},
+	}),
+	...(page.url.next && {
+		nextUrl: {
+			text: "Next Page →",
+			url: page.url.next,
+		},
+	}),
+};
+---
+
+<PageLayout meta={meta}>
+	<section>
+		<h1 class="title mb-12 flex items-center gap-3">
+			Projects <a class="text-accent" href="/projects/rss.xml" target="_blank">
+				<span class="sr-only">RSS feed</span>
+				<Icon aria-hidden="true" class="h-6 w-6" focusable="false" name="lucide:rss" />
+			</a>
+		</h1>
+		<ul class="mt-6 space-y-8 text-start">
+			{
+				page.data.map((project) => (
+					<li class="">
+						<Project project={project} as="h2" isPreview />
+					</li>
+				))
+			}
+		</ul>
+		<Pagination {...paginationProps} />
+	</section>
+</PageLayout>

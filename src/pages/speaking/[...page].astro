@@ -1,0 +1,65 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { GetStaticPaths, Page } from "astro";
+import FormattedDate from "@/components/FormattedDate.astro";
+import Pagination from "@/components/Paginator.astro";
+import { getAllSpeaking } from "@/data/speaking";
+import PageLayout from "@/layouts/Base.astro";
+import { collectionDateSort } from "@/utils/date";
+import { breadcrumbList, collectionPageSchema } from "@/utils/seo";
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const talks = await getAllSpeaking();
+	return paginate(talks.sort(collectionDateSort), { pageSize: 10 });
+}) satisfies GetStaticPaths;
+
+interface Props {
+	page: Page<CollectionEntry<"speaking">>;
+}
+
+const { page } = Astro.props;
+
+const meta = {
+	description: "Talks and presentations I've given",
+	schema: [
+		breadcrumbList([
+			{ name: "Home", path: "/" },
+			{ name: "Speaking", path: "/speaking/" },
+		]),
+		collectionPageSchema({
+			name: "Speaking",
+			description: "Talks and presentations I've given",
+			path: page.url.current,
+			items: page.data.map((t) => ({ name: t.data.title, path: `/speaking/${t.id}/` })),
+		}),
+	],
+	title: "Speaking",
+};
+
+const paginationProps = {
+	...(page.url.prev && { prevUrl: { text: "← Previous Page", url: page.url.prev } }),
+	...(page.url.next && { nextUrl: { text: "Next Page →", url: page.url.next } }),
+};
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-12">Speaking</h1>
+	<ul class="space-y-6">
+		{
+			page.data.map((talk) => (
+				<li class="grid gap-1 sm:grid-cols-[auto_1fr]">
+					<FormattedDate class="text-muted min-w-30 font-semibold" date={talk.data.publishDate} />
+					<div>
+						<h2 class="title text-base">
+							<a class="cactus-link" href={`/speaking/${talk.id}/`}>
+								{talk.data.title}
+							</a>
+						</h2>
+						{talk.data.event && <p class="text-muted text-sm">{talk.data.event}</p>}
+					</div>
+				</li>
+			))
+		}
+	</ul>
+	<Pagination {...paginationProps} />
+</PageLayout>

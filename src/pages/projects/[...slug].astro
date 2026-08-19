@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import Project from "@/components/project/Project.astro";
+import PageLayout from "@/layouts/Base.astro";
+import { breadcrumbList, creativeWorkSchema } from "@/utils/seo";
+
+// if you're using an adaptor in SSR mode, getStaticPaths wont work -> https://docs.astro.build/en/guides/routing/#modifying-the-slug-example-for-ssr
+export const getStaticPaths = (async () => {
+	const allProjects = await getCollection("projects");
+	return allProjects.map((project) => ({
+		params: { slug: project.id },
+		props: { project },
+	}));
+}) satisfies GetStaticPaths;
+
+export type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { project } = Astro.props;
+const { title, description, link, repo, tags, startDate } = project.data;
+const path = `/projects/${project.id}/`;
+
+const meta = {
+	description: description || `Project: ${title}`,
+	keywords: tags,
+	ogImage: `/og-image/projects/${project.id}.png`,
+	schema: [
+		breadcrumbList([
+			{ name: "Home", path: "/" },
+			{ name: "Projects", path: "/projects/" },
+			{ name: title, path },
+		]),
+		creativeWorkSchema({ title, description, path, url: link, repo, dateCreated: startDate, keywords: tags }),
+	],
+	title,
+};
+---
+
+<PageLayout meta={meta}>
+	<Project as="h1" project={project} />
+</PageLayout>

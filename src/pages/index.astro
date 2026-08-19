@@ -1,0 +1,142 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import PostPreview from "@/components/blog/PostPreview.astro";
+import Project from "@/components/project/Project.astro";
+import { getAllPosts } from "@/data/post";
+import { getAllSpeaking } from "@/data/speaking";
+import PageLayout from "@/layouts/Base.astro";
+import { socialLinks } from "@/site.config";
+import { getTagIndex, getTaggedCollections } from "@/data/tags";
+import { collectionDateSort, projectDateSort } from "@/utils/date";
+import { personSchema, websiteSchema } from "@/utils/seo";
+
+const MAX_POSTS = 4;
+const allPosts = await getAllPosts();
+const latestPosts = (allPosts.sort(collectionDateSort) as CollectionEntry<"writing">[]).slice(
+	0,
+	MAX_POSTS,
+);
+
+const MAX_PROJECTS = 3;
+const allProjects = await getCollection("projects");
+const latestProjects = allProjects.sort(projectDateSort).slice(0, MAX_PROJECTS);
+
+const talks = (await getAllSpeaking()).sort(collectionDateSort);
+
+const social = Object.fromEntries(socialLinks.map((s) => [s.friendlyName, s.link]));
+
+// Skills (from all tagged content) feed the Person `knowsAbout` signal.
+const skills = [...getTagIndex(await getTaggedCollections()).values()].map((t) => t.label);
+
+const meta = {
+	title: "Engineer & Founder",
+	description:
+		"Prad Nukala — engineer and founder building decentralized identity infrastructure. Explore my projects, experience, writing, and talks.",
+	schema: [websiteSchema(), personSchema(skills)],
+};
+---
+
+<PageLayout meta={meta}>
+	<section>
+		<h1 class="title mb-6">About</h1>
+		<p class="mb-4">
+			I'm Prad Nukala — an engineer and founder building decentralized identity infrastructure. As
+			co-founder and CEO of <a class="cactus-link" href="https://sonr.io" rel="noreferrer" target="_blank">Sonr</a>, I'm
+			building a peer-to-peer identity and data network powered by decentralized identifiers (DIDs),
+			WebAuthn, and IPFS.
+		</p>
+		<p class="mb-4">
+			I help shape the open standards behind user-owned identity as a working-group member at the
+			W3C (<a class="cactus-link" href="https://www.w3.org/groups/wg/did/former-participants/" rel="noreferrer" target="_blank">DIDs</a>,
+			WebAuthn, <a class="cactus-link" href="https://www.w3.org/groups/wg/wasm/former-participants/" rel="noreferrer" target="_blank">WebAssembly</a>)
+			and the Decentralized Identity Foundation (UCAN, DWN). I've been shipping software since age
+			12 — three apps with over 1M downloads, technical writing read 120k+ times, and bylines in
+			Fast Company.
+		</p>
+		<p>
+			Find me on <a class="cactus-link" href={social.GitHub} rel="me noreferrer" target="_blank">Github</a>,
+			<a class="cactus-link" href={social.X} rel="me noreferrer" target="_blank">X</a>,
+			<a class="cactus-link" href={social.LinkedIn} rel="me noreferrer" target="_blank">LinkedIn</a>, or
+			<a class="cactus-link" href={social.Email}>contact me directly</a>.
+		</p>
+	</section>
+	{
+		latestProjects.length > 0 && (
+			<section class="mt-16">
+				<h2 class="title text-accent mb-6 text-xl">
+					<a href="/projects/">Projects</a>
+				</h2>
+				<ul class="space-y-6" role="list">
+					{latestProjects.map((project) => (
+						<li>
+							<Project project={project} as="h3" isPreview />
+						</li>
+					))}
+				</ul>
+				<a class="hover:text-link mt-6 inline-block" href="/projects/">
+					See all projects <span aria-hidden="true">→</span>
+				</a>
+			</section>
+		)
+	}
+	<section class="mt-16">
+		<h2 class="title text-accent mb-6 text-xl"><a href="/writing/">Writing</a></h2>
+		<ul class="space-y-4" role="list">
+			{
+				latestPosts.map((p) => (
+					<li class="grid gap-1 sm:grid-cols-[auto_1fr]">
+						<PostPreview post={p} />
+					</li>
+				))
+			}
+		</ul>
+		<a class="hover:text-link mt-6 inline-block" href="/writing/">
+			See all writing <span aria-hidden="true">→</span>
+		</a>
+	</section>
+	{
+		talks.length > 0 && (
+			<section class="mt-16">
+				<h2 class="title text-accent mb-6 text-xl">
+					<a href="/speaking/">Speaking</a>
+				</h2>
+				<ul class="space-y-4" role="list">
+					{talks.map((talk) => (
+						<li>
+							<a class="cactus-link" href={`/speaking/${talk.id}/`}>
+								{talk.data.title}
+							</a>
+							{talk.data.event && <span class="text-muted text-sm"> · {talk.data.event}</span>}
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+	<section class="mt-16">
+		<h2 class="title text-accent mb-6 text-xl">Honors &amp; Recognition</h2>
+		<ul class="space-y-4" role="list">
+			<li>Guest Lecturer, <em>Crypto Finance (15.492)</em> — MIT Sloan School of Management</li>
+		</ul>
+	</section>
+	<section class="mt-16">
+		<h2 class="title text-accent mb-6 text-xl">Standards &amp; Organizations</h2>
+		<ul class="space-y-4" role="list">
+			<li>
+				<a class="cactus-link" href="https://www.w3.org/" rel="noreferrer" target="_blank">
+					World Wide Web Consortium (W3C)
+				</a>
+				— Working Group —
+				<a class="cactus-link" href="https://www.w3.org/groups/wg/did/former-participants/" rel="noreferrer" target="_blank">DIDs</a>,
+				WebAuthn,
+				<a class="cactus-link" href="https://www.w3.org/groups/wg/wasm/former-participants/" rel="noreferrer" target="_blank">WASM</a>
+			</li>
+			<li>
+				<a class="cactus-link" href="https://identity.foundation/" rel="noreferrer" target="_blank">
+					Decentralized Identity Foundation (DIF)
+				</a>
+				— Working Group — UCAN, DWN
+			</li>
+		</ul>
+	</section>
+</PageLayout>

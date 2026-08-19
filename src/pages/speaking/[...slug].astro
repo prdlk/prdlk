@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import ExperienceTags from "@/components/ExperienceTags.astro";
+import FormattedDate from "@/components/FormattedDate.astro";
+import TagList from "@/components/TagList.astro";
+import YouTube from "@/components/YouTube.astro";
+import PageLayout from "@/layouts/Base.astro";
+import { breadcrumbList, videoSchema } from "@/utils/seo";
+
+export const getStaticPaths = (async () => {
+	const talks = await getCollection("speaking");
+	return talks.map((talk) => ({
+		params: { slug: talk.id },
+		props: { talk },
+	}));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { talk } = Astro.props as Props;
+const { Content } = await render(talk);
+const { title, description, youtubeId, event, publishDate, experiences, tags } = talk.data;
+
+const path = `/speaking/${talk.id}/`;
+const ogImage = `/og-image/speaking/${talk.id}.png`;
+const schema = [
+	breadcrumbList([
+		{ name: "Home", path: "/" },
+		{ name: "Speaking", path: "/speaking/" },
+		{ name: title, path },
+	]),
+	videoSchema({
+		title,
+		description,
+		path,
+		thumbnail: `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`,
+		uploadDate: publishDate,
+		embedUrl: `https://www.youtube.com/embed/${youtubeId}`,
+		contentUrl: `https://www.youtube.com/watch?v=${youtubeId}`,
+	}),
+];
+
+const meta = { description, keywords: tags, ogImage, schema, title };
+---
+
+<PageLayout meta={meta}>
+	<article data-pagefind-body>
+		<h1 class="title mb-2">{title}</h1>
+		<p class="text-muted mb-6">
+			<FormattedDate date={publishDate} />{event && ` · ${event}`}
+		</p>
+		<YouTube id={youtubeId} title={title} />
+		<div class="prose prose-sm prose-cactus mt-8 max-w-none">
+			<Content />
+		</div>
+		<TagList tags={tags} class="mt-8" />
+		{experiences.length > 0 && <div class="mt-6"><ExperienceTags experiences={experiences} /></div>}
+	</article>
+</PageLayout>

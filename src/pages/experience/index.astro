@@ -1,0 +1,64 @@
+---
+import { getAllExperience } from "@/data/experience";
+import PageLayout from "@/layouts/Base.astro";
+import { breadcrumbList, collectionPageSchema } from "@/utils/seo";
+
+const experiences = await getAllExperience();
+
+const meta = {
+	description: "Roles and organizations I've worked with",
+	schema: [
+		breadcrumbList([
+			{ name: "Home", path: "/" },
+			{ name: "Experience", path: "/experience/" },
+		]),
+		collectionPageSchema({
+			name: "Experience",
+			description: "Roles and organizations I've worked with",
+			path: "/experience/",
+			items: experiences.map((e) => ({
+				name: e.data.role ? `${e.data.role}, ${e.data.organization}` : e.data.organization,
+				path: `/experience/${e.id}/`,
+			})),
+		}),
+	],
+	title: "Experience",
+};
+
+const range = (start: Date, end?: Date) =>
+	`${start.getFullYear()} – ${end ? end.getFullYear() : "Present"}`;
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-12">Experience</h1>
+	<ul class="space-y-10">
+		{
+			experiences.map((exp) => (
+				<li>
+					<div class="flex flex-wrap items-baseline justify-between gap-x-4">
+						<h2 class="title text-lg">
+							<a class="cactus-link" href={`/experience/${exp.id}/`}>
+								{exp.data.role ? `${exp.data.role}, ${exp.data.organization}` : exp.data.organization}
+							</a>
+						</h2>
+						<span class="text-muted text-sm">{range(exp.data.startDate, exp.data.endDate)}</span>
+					</div>
+					{exp.data.location && <p class="text-muted text-sm">{exp.data.location}</p>}
+					{exp.data.description && <p class="mt-2">{exp.data.description}</p>}
+				</li>
+			))
+		}
+	</ul>
+	<section class="mt-16">
+		<h2 class="title text-accent mb-6 text-xl">Education</h2>
+		<p>
+			<strong>Virginia Commonwealth University</strong><br />
+			B.S. in Applied Mathematics
+		</p>
+		<p class="mt-2">
+			Attended 5 MLH hackathons, published 3 apps in 3 years with over 1M downloads, and wrote 3
+			articles with over 120k reads. Coursework spanned linear algebra, number theory, topological
+			data analysis, and vector calculus.
+		</p>
+	</section>
+</PageLayout>

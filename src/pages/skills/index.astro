@@ -1,0 +1,45 @@
+---
+import { getTagIndex, getTaggedCollections } from "@/data/tags";
+import PageLayout from "@/layouts/Base.astro";
+import { breadcrumbList, collectionPageSchema } from "@/utils/seo";
+
+const cols = await getTaggedCollections();
+const tags = [...getTagIndex(cols).entries()]
+	.map(([slug, { label, count }]) => ({ slug, label, count }))
+	.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+
+const meta = {
+	description: "Browse projects, experience, writing, and talks by skill and topic.",
+	keywords: tags.map((t) => t.label),
+	schema: [
+		breadcrumbList([
+			{ name: "Home", path: "/" },
+			{ name: "Skills", path: "/skills/" },
+		]),
+		collectionPageSchema({
+			name: "Skills",
+			description: "Browse projects, experience, writing, and talks by skill and topic.",
+			path: "/skills/",
+			items: tags.map((t) => ({ name: t.label, path: `/skills/${t.slug}/` })),
+		}),
+	],
+	title: "Skills",
+};
+---
+
+<PageLayout meta={meta}>
+	<h1 class="title mb-6">Skills</h1>
+	<p class="text-muted mb-8">Skills and topics spanning my projects, experience, writing, and talks.</p>
+	<ul class="flex flex-wrap gap-x-4 gap-y-2">
+		{
+			tags.map(({ slug, label, count }) => (
+				<li>
+					<a class="cactus-link before:content-['#']" href={`/skills/${slug}/`}>
+						{label}
+					</a>
+					<span class="text-muted text-sm"> {count}</span>
+				</li>
+			))
+		}
+	</ul>
+</PageLayout>

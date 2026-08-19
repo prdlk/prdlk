@@ -1,0 +1,121 @@
+---
+import { render } from "astro:content";
+import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+import { Icon } from "astro-icon/components";
+import PostPreview from "@/components/blog/PostPreview.astro";
+import TagList from "@/components/TagList.astro";
+import { getAllExperience, getContentForExperience } from "@/data/experience";
+import PageLayout from "@/layouts/Base.astro";
+import { breadcrumbList } from "@/utils/seo";
+
+export const getStaticPaths = (async () => {
+	const experiences = await getAllExperience();
+	return Promise.all(
+		experiences.map(async (exp) => ({
+			params: { slug: exp.id },
+			props: { exp, content: await getContentForExperience(exp.id) },
+		})),
+	);
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { exp, content } = Astro.props as Props;
+const { Content } = await render(exp);
+const { startDate, endDate, organization, role, location, url, tags } = exp.data;
+const range = `${startDate.getFullYear()} – ${endDate ? endDate.getFullYear() : "Present"}`;
+
+const meta = {
+	description: exp.data.description ?? `${role ?? ""} at ${organization}`.trim(),
+	keywords: tags,
+	ogImage: `/og-image/experience/${exp.id}.png`,
+	schema: breadcrumbList([
+		{ name: "Home", path: "/" },
+		{ name: "Experience", path: "/experience/" },
+		{ name: exp.data.title, path: `/experience/${exp.id}/` },
+	]),
+	title: exp.data.title,
+};
+---
+
+<PageLayout meta={meta}>
+	<nav class="mb-8" aria-label="Breadcrumbs">
+		<ul class="flex items-center">
+			<li class="flex items-center">
+				<a class="text-accent" href="/experience/">Experience</a>
+				<Icon aria-hidden="true" name="lucide:chevron-right" class="mx-1.5" />
+			</li>
+			<li aria-current="page">{exp.data.title}</li>
+		</ul>
+	</nav>
+
+	<h1 class="title">{role ? `${role}, ${organization}` : organization}</h1>
+	<p class="text-muted mt-1">
+		{range}{location && ` · ${location}`}
+		{
+			url && (
+				<>
+					{" · "}
+					<a class="cactus-link" href={url} rel="noopener noreferrer" target="_blank">
+						Website →
+					</a>
+				</>
+			)
+		}
+	</p>
+
+	<div class="prose prose-sm prose-cactus mt-6 mb-12 max-w-none">
+		<Content />
+	</div>
+
+	{
+		content.projects.length > 0 && (
+			<section class="mb-12">
+				<h2 class="title mb-4 text-xl">Projects</h2>
+				<ul class="space-y-3">
+					{content.projects.map((p) => (
+						<li>
+							<a class="cactus-link" href={`/projects/${p.id}/`}>
+								{p.data.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+
+	{
+		content.writing.length > 0 && (
+			<section class="mb-12">
+				<h2 class="title mb-4 text-xl">Writing</h2>
+				<ul class="space-y-4">
+					{content.writing.map((p) => (
+						<li class="grid gap-1 sm:grid-cols-[auto_1fr]">
+							<PostPreview as="h3" post={p} />
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+
+	{
+		content.speaking.length > 0 && (
+			<section class="mb-12">
+				<h2 class="title mb-4 text-xl">Speaking</h2>
+				<ul class="space-y-3">
+					{content.speaking.map((t) => (
+						<li>
+							<a class="cactus-link" href={`/speaking/${t.id}/`}>
+								{t.data.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+
+	<TagList tags={tags} class="border-global-text/10 mt-6 border-t pt-6" />
+</PageLayout>

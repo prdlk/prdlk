@@ -19,7 +19,7 @@ Markdown/MDX content for the four collections. Each subdirectory is a collection
 ### Working In This Directory
 - **Experience taxonomy:** entries in `projects`, `writing`, and `speaking` reference experiences via an `experiences: [<id>]` array (validated by `reference("experience")`). The id is the experience filename without extension (e.g. `experiences: ["sonr"]` → `experience/sonr.md`). Adding a ref to a non-existent experience fails the build.
 - `draft: true` (writing/speaking) hides an entry from production builds.
-- After editing frontmatter, `pnpm build` validates it against the schema.
+- After editing frontmatter, `bun run build` validates it against the schema.
 
 ### Common Patterns
 - Some `writing/` samples (`markdown-elements`, `testing/`) are leftover theme demos showcasing markdown rendering — safe to delete once real content exists.
